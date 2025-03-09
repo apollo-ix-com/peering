@@ -1,0 +1,33 @@
+/*!
+ * Theme Name: Default
+ * Package : DashLite
+ * Author: Softnio
+ * Author URI: http://themeforest.net/user/softnio
+ * Version	 :	1.0.0
+ * Updated	 :	07.08.2020
+**/
+
+/* Works on Firefox */
+*, .nk-scrollbar{
+  scrollbar-width: thin;
+  scrollbar-color: #0fac81 #e2f5f0;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar, .nk-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+*::-webkit-scrollbar-track, .nk-scrollbar::-webkit-scrollbar-track {
+  background: #e2f5f0;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #0fac81;
+  border-radius: 10px;
+  border: 1px solid #e2f5f0;
+  box-shadow: inset 2px 2px 5px 0 rgba(#e2f5f0, 0.2);
+}
+.leaflet-control-attribution {
+  display: none !important;
+}
