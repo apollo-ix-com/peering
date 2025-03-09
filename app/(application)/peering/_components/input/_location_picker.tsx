@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
-
 const MAPTILER_API_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 const DEFAULT_CENTER: [number, number] = [
   19.021055556730882, 72.83027885197798,
@@ -99,11 +98,11 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
         >
           <FlyToLocation center={[mapCenter.lat, mapCenter.lng]} />
 
-          <TileLayer
+          {/* <TileLayer
             url={`https://api.maptiler.com/maps/basic/256/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`}
-          />
+          /> */}
 
-          {/* <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}" /> */}
+          <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}" />
           <MapEventHandler />
         </MapContainer>
 
