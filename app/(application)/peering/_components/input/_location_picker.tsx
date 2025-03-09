@@ -5,9 +5,10 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
 const MAPTILER_API_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
+
 const DEFAULT_CENTER: [number, number] = [
   19.021055556730882, 72.83027885197798,
-]; // Default location
+];
 
 interface LocationPickerProps {
   onLocationChange: (location: { lat: number; lng: number }) => void;
@@ -23,14 +24,12 @@ const FlyToLocation: React.FC<{ center: [number, number] }> = ({ center }) => {
       prevCenter.current[1] === center[1];
 
     if (!isSameLocation) {
-      const currentZoom = map.getZoom(); // Preserve current zoom
-
-      map.flyTo(center, currentZoom, {
+      map.flyTo(center, map.getZoom(), {
         animate: true,
         duration: 2,
         easeLinearity: 0.25,
       });
-      prevCenter.current = center; // Update previous center
+      prevCenter.current = center;
     }
   }, [center, map]);
 
@@ -45,14 +44,16 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
     lng: DEFAULT_CENTER[1],
   });
 
+  const [initialLoadComplete, setInitialLoadComplete] =
+    useState<boolean>(false);
+
   const mapRef = useRef<L.Map | null>(null);
 
-  // Map Event Handler for updating map center on move
   const MapEventHandler = () => {
     useMapEvents({
+      movestart: () => setInitialLoadComplete(true), // Detects user interaction
       moveend: (event) => {
         const newCenter = event.target.getCenter();
-
         setMapCenter({ lat: newCenter.lat, lng: newCenter.lng });
         onLocationChange({ lat: newCenter.lat, lng: newCenter.lng });
       },
@@ -68,8 +69,14 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
           const { latitude, longitude } = position.coords;
           const newLocation = { lat: latitude, lng: longitude };
 
-          setMapCenter(newLocation);
-          onLocationChange(newLocation);
+          if (!initialLoadComplete) {
+            setMapCenter(newLocation);
+            onLocationChange(newLocation);
+
+            if (mapRef.current) {
+              mapRef.current.flyTo(newLocation, mapRef.current.getZoom());
+            }
+          }
         },
         (error) => {
           console.warn("Location access denied or error occurred.", error);
@@ -83,7 +90,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
       setMapCenter({ lat: DEFAULT_CENTER[0], lng: DEFAULT_CENTER[1] });
       onLocationChange({ lat: DEFAULT_CENTER[0], lng: DEFAULT_CENTER[1] });
     }
-  }, [onLocationChange]);
+  }, [onLocationChange, initialLoadComplete]);
 
   return (
     <div className="position-relative w-100 vh-50 vh-md-60 vh-lg-70">
@@ -96,17 +103,14 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
           style={{ height: "50vh", width: "100%" }}
           zoom={16}
         >
-          <FlyToLocation center={[mapCenter.lat, mapCenter.lng]} />
+          {!initialLoadComplete && (
+            <FlyToLocation center={[mapCenter.lat, mapCenter.lng]} />
+          )}
 
-          {/* <TileLayer
-            url={`https://api.maptiler.com/maps/basic/256/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`}
-          /> */}
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {/* <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}" /> */}
           <MapEventHandler />
         </MapContainer>
 
-        {/* Fixed Marker in Center */}
         <div
           className="position-absolute top-50 start-50 translate-middle"
           style={{ zIndex: 1000 }}
